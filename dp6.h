@@ -16,6 +16,8 @@
 // For std::pair, std::move
 #include <cstddef>
 // For std::size_t
+#include <algorithm>
+// For std::copy
 
 #include <iostream>
 using std::cout;
@@ -59,12 +61,15 @@ class LLMap{
     using value_type = Val;    // value type in array
 
 public:
-    LLMap(){
+    LLMap() {}
 
-    }
-    LLMap(const LLMap & other){
+    // No copy ctor, copy/move ops
+    LLMap(const LLMap & other) = delete;
+    LLMap & operator=(const LLMap & other) = delete;
+    LLMap(LLmap && other) = delete;
+    LLMap & operator=(const LLMap && other) = delete;
 
-    }
+
 
     ~LLMap(){
 
@@ -99,5 +104,7 @@ public:
 private:
     std::unique_ptr<LLNode2<std::pair<Key, Val>>> _uniquePtr;
 };
+
+
 
 #endif //PROJECT6_DP6_H

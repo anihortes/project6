@@ -349,6 +349,7 @@ void print_list(const unique_ptr<LLNode2<ValType>> & head,
 // Test Cases
 // *********************************************************************
 
+/*
 
 TEST_CASE( "reverseList: Size & items" )
 {
@@ -496,8 +497,8 @@ TEST_CASE( "reverseList: Other requirements" )
             pop_front(head);
     }
 }
+*/
 
-/*
 
 TEST_CASE( "LLMap: Member function return Types" )
 {
@@ -519,7 +520,7 @@ TEST_CASE( "LLMap: Member function return Types" )
         REQUIRE( TypeCheck<bool>::check(m.empty()) );
         }
     }
-
+/*
     SUBCASE( "Member function size - return type")
     {
         {
@@ -588,8 +589,9 @@ TEST_CASE( "LLMap: Member function return Types" )
         INFO( "non-const LLMap<string,string>::find returns (string *) by val" );
         REQUIRE( TypeCheck<string *>::check(m.find("abc")) );
         }
-    }
+    }*/
 }
+/*
 
 
 TEST_CASE( "LLMap: insert, erase, find" )
