@@ -18,6 +18,10 @@
 // For std::size_t
 #include <algorithm>
 // For std::copy
+#include <string>
+// For std::string
+#include <functional>
+// For std::function
 
 #include <iostream>
 using std::cout;
@@ -58,51 +62,139 @@ void reverseList (std::unique_ptr<LLNode2<ValType>> & head){
 template<typename Key, typename Val>
 class LLMap{
     using size_type = std::size_t;
+    using key_type = Key;
     using value_type = Val;    // value type in array
 
 public:
-    LLMap() {}
+    LLMap<key_type, value_type>() = default;
 
     // No copy ctor, copy/move ops
-    LLMap(const LLMap & other) = delete;
+    LLMap<key_type, value_type>(const LLMap<key_type, value_type> & other) = delete;
+
     LLMap & operator=(const LLMap & other) = delete;
-    LLMap(LLmap && other) = delete;
+
+    LLMap<key_type, value_type>(LLMap<key_type, value_type> && other) = delete;
+
     LLMap & operator=(const LLMap && other) = delete;
 
-
-
-    ~LLMap(){
-
-    }
+    ~LLMap()= default;
 
 public:
-    const size_type size() const{
-        return 0;
+
+    // Taken from llnode2.h size() function
+    [[nodiscard]] size_type size() const{
+        auto p = _uPtr.get();      // Iterates through list
+        size_type counter = 0;  // Number of nodes so far
+        while (p != nullptr)
+        {
+            p = p->_next.get();
+            ++counter;
+        }
+        return counter;
     }
     
-    const bool empty() const{
-        return false;
+    [[nodiscard]] bool empty() const{
+        return size()==0;
     }
-    
-    const value_type * find(const Key & findKey) const{
+
+
+    const value_type * find(const key_type & findKey) const{
+        auto p = _uPtr.get();
+        if(p == nullptr)
+            return nullptr;
+        while(p->_data.first != findKey || p != nullptr) {
+            p = p->_next.get();
+            if (p->_data.first == findKey) {
+                const value_type *temp;
+                temp = &(p->_data.second);
+                return temp;
+            }
+        }
         return nullptr;
     }
-     value_type * find(const Key & findKey) {
+
+    value_type * find(const key_type & findKey){
+        auto p = _uPtr.get();
+       //cout << p->_data.first << " first  "<<p->_data.second<<endl;
+
+        if(p == nullptr)
+            return nullptr;
+        while(p != nullptr){
+            //cout << p->_data.first << "  second "<< findKey <<endl;
+            if(p->_data.first == findKey){
+                //cout << p->_data.first << "  found "<<p->_data.second<<endl;
+
+                value_type *temp;
+                temp = &(p->_data.second);
+                return temp;
+            }
+            p = p->_next.get();
+            //cout << p->_data.first << " third  "<<p->_data.second<<endl;
+
+            if(p == nullptr)
+                break;
+        }
         return nullptr;
     }
 
-    void insert(const Key & keyInsert, const Val & insertVal){
+    void insert(const key_type & keyInsert, const value_type & valInsert){
+        auto p = _uPtr.get();
+        if(p != nullptr) {
+            bool keyNotFound = true;
+            while (p != nullptr) {
+                if (p->_data.first == keyInsert) {
+                    p->_data.second = valInsert;
+                    keyNotFound = false;
+                }
+                p = p->_next.get();
+            }
+            if (keyNotFound){
+                push_front(_uPtr, std::pair<key_type, value_type>(keyInsert, valInsert));
+            }
+        }
+        else{
+            push_front(_uPtr, std::pair<key_type, value_type>(keyInsert, valInsert));
+            //cout << _uPtr.get()->_data.first << "   "<<_uPtr.get()->_data.second<<endl;
+        }
     }
 
-    void erase(const Key & eraseKey){
+    void erase(const key_type & eraseKey){
+        auto p = _uPtr.get();
+        if(p != nullptr) {
+            if(p->_data.first == eraseKey){
+                _uPtr = std::move(_uPtr->_next);
+                return;
+            }
+            auto nextP = p->_next.get();
+            while (nextP != nullptr) {
+                if (nextP->_data.first == eraseKey) {
+                    p->_next = std::move(nextP->_next);
+                    nextP = nullptr;
+                    return;
+                }
+                p = nextP;
+                nextP = nextP->_next.get();
+            }
+        }
     }
 
-    template<typename T>
-    void traverse(const T & functionObj){
+    void traverse(const std::function<void(key_type, value_type)> & ff){
+        auto p = _uPtr.get();
+        while (p != nullptr) {
+            try{
+                ff(p->_data.first, p->_data.second);
+            }
+            catch(...){
+                throw;
+            }
+
+            p = p->_next.get();
+        }
+
     }
 
 private:
-    std::unique_ptr<LLNode2<std::pair<Key, Val>>> _uniquePtr;
+    std::unique_ptr<LLNode2<std::pair<key_type, value_type>>> _uPtr;
 };
 
 
