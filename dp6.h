@@ -178,6 +178,7 @@ public:
         }
     }
 
+    // preconditions??
     void traverse(const std::function<void(key_type, value_type)> & ff){
         auto p = _uPtr.get();
         while (p != nullptr) {
